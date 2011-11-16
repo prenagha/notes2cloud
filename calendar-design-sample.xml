@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<viewdesign rowlines="9" direction="0" spacing="0" columns="6" totalscolor="#808080" headerbgcolor="#FFFFFF">
+  <column columnnumber="0" width="8" name="$162" hiddentitle="" resize="true" format="2" icon="true"
+          listseparator="none" narrowdisplay="top" tiledisplay="top">
+    <cfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <hfont style="b" size="9" color="#000000" face="Helvetica"/>
+    <numberformat digits="0" format="general"/>
+    <datetimeformat show="datetime" date="yearmonthday" time="hourminutesecond" zone="never"/>
+  </column>
+  <column columnnumber="1" width="15" name="$149" title="Icon" format="2" icon="true" listseparator="none"
+          narrowdisplay="top" tiledisplay="top" tileline="0">
+    <cfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <hfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <numberformat digits="0" format="general"/>
+    <datetimeformat show="datetime" date="yearmonthday" time="hourminutesecond" zone="never"/>
+  </column>
+  <column columnnumber="2" width="48" name="$144" title="Time" resize="true" format="2" listseparator="space"
+          narrowdisplay="top" tiledisplay="top" tileline="0">
+    <cfont style="r" size="9" color="#0000ff" face="Helvetica"/>
+    <hfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <numberformat digits="0" format="general"/>
+    <datetimeformat show="time" date="yearmonthday" time="hourminute" zone="never"/>
+  </column>
+  <column columnnumber="3" width="8" name="$145" title="-" resize="true" headeralign="2" format="2" listseparator="none"
+          narrowdisplay="top" tiledisplay="top" tileline="0">
+    <cfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <hfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <numberformat digits="0" format="general"/>
+    <datetimeformat show="datetime" date="yearmonthday" time="hourminutesecond" zone="never"/>
+  </column>
+  <column columnnumber="4" width="48" name="$146" title="End" resize="true" format="2" listseparator="space"
+          narrowdisplay="top" tiledisplay="top" tileline="0">
+    <cfont style="r" size="9" color="#0000ff" face="Helvetica"/>
+    <hfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <numberformat digits="0" format="general"/>
+    <datetimeformat show="time" date="yearmonthday" time="hourminute" zone="never"/>
+  </column>
+  <column columnnumber="5" width="144" name="$147" title="Subject" resize="true" format="2" listseparator="newline"
+          extendcolwidth="true" narrowdisplay="wrap" sequence="0" tiledisplay="top" tileline="0">
+    <cfont style="r" size="9" color="#0000ff" face="Helvetica"/>
+    <hfont style="r" size="9" color="#000000" face="Helvetica"/>
+    <numberformat digits="0" format="general"/>
+    <datetimeformat show="datetime" date="yearmonthday" time="hourminutesecond" zone="never"/>
+  </column>
+</viewdesign>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+	<key>CFBundleName</key>
+	<string>notes2cloud</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.renaghan.notes2cloud.Notes2Cloud</string>
+	<key>CFBundleVersion</key>
+	<string>100.0</string>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<string>true</string>
+	<key>CFBundleExecutable</key>
+	<string>JavaApplicationStub</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleIconFile</key>
+	<string>csc.icns</string>
+	<key>Java</key>
+	<dict>
+		<key>MainClass</key>
+		<string>com.renaghan.notes2cloud.Notes2Cloud</string>
+		<key>JVMVersion</key>
+		<string>1.6+</string>
+		<key>ClassPath</key>
+			<array>
+			<string>$USER_HOME/Dev/notes2cloud/conf</string>
+			<string>$USER_HOME/Dev/notes2cloud/bin/classes</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/log4j-1.2.12.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/commons-codec-1.4.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/commons-logging-1.1.1.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpclient-4.1.2.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpclient-cache-4.1.2.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpcore-4.1.2.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpmime-4.1.2.jar</string>
+			</array>
+	</dict>
+</dict>
+</plist>
