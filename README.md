@@ -1,6 +1,6 @@
-!! Notes2Cloud
+## Notes2Cloud
 
-! Purpose
+# Purpose
 
 You want your work calendar stored in the work Lotus Notes system available to view
 on your iPhone/iPad/Mac?
@@ -15,7 +15,7 @@ You probably need to be a fiddler to get this to work for you, but it was a pain
 itch for me that I built this to scratch it. Figured there are others that have same problem
 (everyone that works at a place using Lotus Notes).
 
-! Other Notes
+# Other Notes
 
 Decoding the Notes Calendar fields.
 
