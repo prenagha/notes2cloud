@@ -101,7 +101,11 @@ public class Notes2Cloud {
     macSetup();
     Notes2Cloud app = new Notes2Cloud();
     while (true) {
-      app.go();
+      try {
+        app.go();
+      } catch (Exception e) {
+        LOG.error("Error running sync", e);
+      }
       long mins = Long.parseLong(getUtils().getProperty("runEveryMinutes"));
       LOG.info("Waiting " + mins + " mins");
       try {
