@@ -1,6 +1,6 @@
 ## Notes2Cloud
 
-# Purpose
+# Calendar Purpose
 
 You want your work calendar stored in the work Lotus Notes system available to view
 on your iPhone/iPad/Mac?
@@ -14,6 +14,16 @@ It is a one-way push, Lotus Notes to iCloud.
 You probably need to be a fiddler to get this to work for you, but it was a painful enough
 itch for me that I built this to scratch it. Figured there are others that have same problem
 (everyone that works at a place using Lotus Notes).
+
+# Mail Export Purpose
+
+Tired of the woeful Lotus Notes Client archive search capability?
+Wish you could have a local copy of your mail?
+
+Notes2Cloud also includes the ability to read messages from iNotes and write them to
+a local filesystem in standard Unix/Mac Maildir format. Couple this with a local IMAP
+server (like dovecot on Mac) and you have a full local replica of your messages and 
+can use the searching capability in IMAP and your mail client.
 
 # Other Notes
 
