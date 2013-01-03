@@ -10,7 +10,7 @@ import java.util.Date;
  *
  * @author prenagha
  */
-public class NotesFromFile extends NotesDownload {
+public class NotesFromFile extends NotesCalendarDownload {
 
   public NotesFromFile(Date minDate, Date maxDate) {
     super(minDate, maxDate);

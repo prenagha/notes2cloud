@@ -1,12 +1,7 @@
 package com.renaghan.notes2cloud;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,14 +13,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.FileWriter;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Download entries from notes calendar
  *
  * @author prenagha
  */
-public class NotesDownload {
+public class NotesCalendarDownload {
   private static final SimpleDateFormat YYYYMMDD = new SimpleDateFormat("yyyyMMdd");
 
   private final Utils utils = Notes2Cloud.getUtils();
@@ -34,7 +31,7 @@ public class NotesDownload {
   private final Date minDate;
   private final Date maxDate;
 
-  public NotesDownload(Date minDate, Date maxDate) {
+  public NotesCalendarDownload(Date minDate, Date maxDate) {
     this.minDate = minDate;
     this.maxDate = maxDate;
     login();
@@ -46,33 +43,7 @@ public class NotesDownload {
   }
 
   protected void login() {
-    String loginUrl = utils.getProperty("notes.url") + utils.getProperty("notes.loginUrl");
-    try {
-      HttpPost login = new HttpPost(loginUrl);
-      List<NameValuePair> data = new ArrayList<NameValuePair>() {{
-        add(new BasicNameValuePair("username", utils.getProperty("notes.userId")));
-        add(new BasicNameValuePair("password", utils.getProperty("notes.password")));
-      }};
-      login.setEntity(new UrlEncodedFormEntity(data));
-      HttpResponse response = utils.getHttpClient().execute(login);
-      String output = response.getEntity() == null ? "" : EntityUtils.toString(response.getEntity());
-      if ("true".equals(Notes2Cloud.getUtils().getProperty("debug"))) {
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-          FileWriter fw = new FileWriter("notes-login-response.html");
-          fw.write(output);
-          fw.close();
-        }
-      }
-      if (response.getStatusLine().getStatusCode() == 302) {
-        //login worked
-      } else {
-        //login failed
-        throw new RuntimeException("Login to notes failed " + response.getStatusLine().getStatusCode());
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Error logging in to notes " + loginUrl, e);
-    }
+    new NotesLogin().login();
   }
 
   protected void events() {
@@ -100,6 +71,7 @@ public class NotesDownload {
     String dayTimeFieldName = utils.getProperty("notes.dayTimeFieldName");
     String subjectFieldName = utils.getProperty("notes.subjectFieldName");
     String excludeWithPrefix = utils.getProperty("excludeWithPrefix");
+    String excludeContains = utils.getProperty("excludeContains");
 
     String current = "";
     try {
@@ -155,6 +127,7 @@ public class NotesDownload {
           && name != null
           && when != null
           && !name.startsWith(excludeWithPrefix)
+          && !name.contains(excludeContains)
           && !when.after(maxDate)
           && !when.before(minDate)) {
           events.add(new Event(uniqueId, name, location, start, end, day, owner));

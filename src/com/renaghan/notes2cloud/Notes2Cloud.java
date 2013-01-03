@@ -3,6 +3,8 @@ package com.renaghan.notes2cloud;
 import com.apple.eawt.Application;
 import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -29,7 +31,7 @@ public class Notes2Cloud {
     return utils;
   }
 
-  public void go() {
+  public void go(boolean export) {
     LOG.info("Go");
     reloadUtils();
 
@@ -58,7 +60,7 @@ public class Notes2Cloud {
     todayCal.set(Calendar.MILLISECOND, 0);
     Date today = todayCal.getTime();
 
-    Set<Event> notesEvents = new NotesDownload(minDate, maxDate).getEvents();
+    Set<Event> notesEvents = new NotesCalendarDownload(minDate, maxDate).getEvents();
     //Set<Event> notesEvents = new NotesFromFile(minDate, maxDate).getEvents();
 
     Set<Event> cloudEvents = new CloudDownload(minDate, maxDate).getEvents();
@@ -77,6 +79,9 @@ public class Notes2Cloud {
     }
 
     new CloudSynchronize(deleteFromCloud, addToCloud).go();
+
+    if (export)
+      new NotesMailExport().go();
 
     // shutdown httpclient
     getUtils().close();
@@ -99,12 +104,34 @@ public class Notes2Cloud {
   public static void main(String[] args) {
     LOG.info("Started");
     macSetup();
+    String errorDir = getUtils().getProperty("errorDir");
+    int exportEvery = Integer.parseInt(getUtils().getProperty("export.runEveryIteration"));
+    int exportIter = 0;
     Notes2Cloud app = new Notes2Cloud();
     while (true) {
       try {
-        app.go();
+        boolean export = exportIter == 0 || exportIter > exportEvery;
+        app.go(export);
+        if (export) {
+          exportIter = 1;
+        } else {
+          exportIter++;
+        }
       } catch (Exception e) {
         LOG.error("Error running sync", e);
+        if (errorDir != null && errorDir.length() > 2) {
+          File ed = new File(errorDir);
+          if (ed.exists() && ed.canWrite()) {
+            File ef = new File(ed, "Notes2Cloud-" + String.valueOf(System.currentTimeMillis()) + ".txt");
+            try {
+              PrintWriter pw = new PrintWriter(ef);
+              e.printStackTrace(pw);
+              pw.close();
+            } catch (Exception x) {
+              // do nothing
+            }
+          }
+        }
       }
       long mins = Long.parseLong(getUtils().getProperty("runEveryMinutes"));
       LOG.info("Waiting " + mins + " mins");
