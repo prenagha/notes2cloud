@@ -10,8 +10,6 @@
     <orderEntry type="library" name="props" level="project" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="log4j" level="project" />
     <orderEntry type="library" name="3p" level="project" />
   </component>
 </module>
-

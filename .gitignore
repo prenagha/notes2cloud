@@ -5,3 +5,4 @@ cloud-calendar-response.xml
 notes-export-list-response.xml
 .DS_Store
 .idea/workspace.xml
+run.sh

@@ -1,5 +1,9 @@
 package com.renaghan.notes2cloud;
 
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -8,10 +12,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * login to lotus notes server, get session cookies into httpclient

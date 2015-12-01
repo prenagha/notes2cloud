@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.renaghan.notes2cloud</string>
+	<key>Program</key>
+	<string>/Users/prenagha/Dev/notes2cloud/run.sh</string>
+	<key>StartCalendarInterval</key>
+	<array>
+		<dict>
+			<key>Minute</key>
+			<integer>5</integer>
+		</dict>
+		<dict>
+			<key>Minute</key>
+			<integer>35</integer>
+		</dict>
+	</array>
+	<key>WorkingDirectory</key>
+	<string>/Users/prenagha/Dev/notes2cloud</string>
+</dict>
+</plist>

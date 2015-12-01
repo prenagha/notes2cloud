@@ -1,15 +1,22 @@
 package com.renaghan.notes2cloud;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-
-import java.io.*;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 
 /**
  * export messages from lotus notes
@@ -32,39 +39,33 @@ public class NotesMailExport {
 
   private void exportList() {
     Calendar breather = Calendar.getInstance();
-    breather.add(Calendar.HOUR, -4);
-
-    int year = Calendar.getInstance().get(Calendar.YEAR);
-    int prevYear = year - 1;
-    File outputDir = new File(utils.getProperty("export.outputDir") + "/" + String.valueOf(year) + "/cur");
-    if (!outputDir.exists())
-      throw new RuntimeException("Output dir does not exist " + outputDir);
-    if (!outputDir.canRead() || !outputDir.canWrite())
-      throw new RuntimeException("Output dir not accessible " + outputDir);
-    File outputDirPrev = new File(utils.getProperty("export.outputDir") + "/" + String.valueOf(prevYear) + "/cur");
-    if (!outputDirPrev.exists())
-      throw new RuntimeException("prev Output dir does not exist " + outputDirPrev);
-    if (!outputDirPrev.canRead())
-      throw new RuntimeException("prev Output dir not accessible " + outputDirPrev);
-
+    breather.add(Calendar.MINUTE, -30);
+    int total = messages.size();
+    int item = 0;
     for (NotesMailMeta msg : messages) {
+      item++;
       // we don't archive calendar to email
-      if (!msg.isExport())
+      if (!msg.isExport()) {
+        //LOG.debug("Skip: " + msg);
         continue;
+      }
       // give a few hours to clear new stuff from inbox
       if (msg.getDate().after(breather))
         continue;
+      // export directory is based on year of message
+      String year = String.valueOf(msg.getDate().get(Calendar.YEAR));
+      File outputDir = new File(utils.getProperty("export.outputDir") + "/" + year + "/cur");
+      if (!outputDir.exists())
+        throw new RuntimeException("Output dir does not exist " + outputDir + " " + msg);
+      if (!outputDir.canRead() || !outputDir.canWrite())
+        throw new RuntimeException("Output dir not accessible " + outputDir + " " + msg);
+      // if we already have exported this message then skip
       File msgFile = new File(outputDir, msg.getIMAPFileName());
       if (msgFile.exists())
         continue;
-      File prevFile = new File(outputDirPrev, msg.getIMAPFileName());
-      if (prevFile.exists())
-        continue;
       if (contains(outputDir, msg.getFileName()))
         continue;
-      if (contains(outputDirPrev, msg.getFileName()))
-        continue;
-      exportMessage(msg, outputDir, msgFile);
+      exportMessage(item, total, msg, outputDir, msgFile);
     }
   }
 
@@ -79,16 +80,16 @@ public class NotesMailExport {
     return files != null && files.length > 0;
   }
 
-  private void exportMessage(NotesMailMeta msg, File outputDir, File msgFile) {
-    LOG.info("Exporting " + msg);
+  private void exportMessage(int item, int total, NotesMailMeta msg, File outputDir, File msgFile) {
+    LOG.info(item + "/" + total + " Export " + msg);
     String msgUrl = utils.getProperty("notes.url")
       + utils.getProperty("export.msgUrl")
       + msg.getId()
       + utils.getProperty("export.msgFields");
 
     try {
-      HttpGet list = new HttpGet(msgUrl);
-      HttpResponse response = utils.getHttpClient().execute(list);
+      HttpGet contents = new HttpGet(msgUrl);
+      HttpResponse response = utils.getHttpClient().execute(contents);
       if (response.getStatusLine().getStatusCode() == 200) {
         //export worked
         File tmp = new File(outputDir, ".msg.tmp");
@@ -108,7 +109,13 @@ public class NotesMailExport {
         msgFile.setLastModified(msg.getDate().getTimeInMillis());
       } else {
         //export failed
-        throw new RuntimeException("Notes export mail failed " + response.getStatusLine().getStatusCode());
+        throw new RuntimeException("Notes export mail failed " + response.getStatusLine().getStatusCode() + " " + msg);
+      }
+      LOG.info("Fix mail export " + msgFile.getCanonicalPath());
+      try {
+        Runtime.getRuntime().exec("/usr/bin/perl /Users/prenagha/Dev/notes2cloud/fix-mail-export.pl " + msgFile.getCanonicalPath());
+      } catch (Exception e) {
+        LOG.error("Error running perl fixDate script on " + msgFile.getName());
       }
     } catch (Exception e) {
       throw new RuntimeException("Error in mail export " + msgUrl + " -- " + msg, e);
@@ -171,7 +178,8 @@ public class NotesMailExport {
       LOG.info("Start");
       NotesMailExport exp = new NotesMailExport();
       new NotesLogin().login();
-      exp.go();
+      exp.loadList();
+      exp.exportList();
       exp.utils.close();
       LOG.info("End");
     } catch (Throwable t) {

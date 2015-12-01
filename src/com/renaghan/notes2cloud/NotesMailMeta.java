@@ -88,11 +88,12 @@ public class NotesMailMeta {
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("NotesMailMeta");
-    sb.append("{").append(id);
-    sb.append(", type=").append(type);
-    sb.append(", date=").append(new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(date.getTime()));
+    sb.append("Msg");
+    sb.append("{");
+    sb.append(new SimpleDateFormat("yyyyMMdd HH:mm:ss").format(date.getTime()));
+    sb.append(" type=").append(type);
     sb.append(", ").append(subject);
+    sb.append(", ").append(id);
     sb.append('}');
     return sb.toString();
   }

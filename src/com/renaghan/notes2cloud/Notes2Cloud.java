@@ -1,14 +1,14 @@
 package com.renaghan.notes2cloud;
 
-import com.apple.eawt.Application;
-import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.apple.eawt.Application;
+import org.apache.log4j.Logger;
 
 /**
  * Main class that runs the application
@@ -17,7 +17,6 @@ import java.util.Set;
  */
 public class Notes2Cloud {
   private static final Logger LOG = Logger.getLogger(Notes2Cloud.class);
-
   private static Utils utils = new Utils();
 
   public Notes2Cloud() {
@@ -29,6 +28,99 @@ public class Notes2Cloud {
 
   public static Utils getUtils() {
     return utils;
+  }
+
+  public static void macSetup() {
+    // set some mac-specific properties
+    System.setProperty("apple.awt.graphics.EnableQ2DX", "true");
+    System.setProperty("apple.laf.useScreenMenuBar", "true");
+    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Notes2Cloud");
+
+    // create an instance of the Mac Application class, so i can handle the
+    // mac quit event with the Mac ApplicationAdapter
+    Application macApplication = Application.getApplication();
+    macApplication.addApplicationListener(new MacApp());
+    macApplication.setEnabledPreferencesMenu(false);
+    macApplication.setEnabledAboutMenu(false);
+  }
+
+  public static void main(String[] args) {
+    LOG.info("Started");
+    Calendar now = Calendar.getInstance();
+    try {
+      // manually trigger export with command line argument
+      boolean export = args != null && args.length > 0 && args[0].equals("export");
+      // otherwise if running 230-3 then do the export
+      if (!export)
+        export = now.get(Calendar.HOUR_OF_DAY) >= 10 && now.get(Calendar.HOUR_OF_DAY) <= 16;
+      if (export)
+        LOG.info("Run export = true");
+      Notes2Cloud app = new Notes2Cloud();
+      app.go(export);
+    } catch (Exception e) {
+      LOG.error("Error running sync", e);
+      String errorDir = getUtils().getProperty("errorDir");
+      if (errorDir != null && errorDir.length() > 2
+        && now.get(Calendar.HOUR_OF_DAY) > 8 && now.get(Calendar.HOUR_OF_DAY) < 18) {
+        File ed = new File(errorDir);
+        if (ed.exists() && ed.canWrite()) {
+          File ef = new File(ed, "Notes2Cloud-" + String.valueOf(System.currentTimeMillis()) + ".txt");
+          try {
+            PrintWriter pw = new PrintWriter(ef);
+            e.printStackTrace(pw);
+            pw.close();
+          } catch (Exception x) {
+            // do nothing
+          }
+        }
+      }
+    }
+    LOG.info("Ended");
+  }
+
+  public static void mainMacApp(String[] args) {
+    LOG.info("Started");
+    macSetup();
+    String errorDir = getUtils().getProperty("errorDir");
+    int exportEvery = Integer.parseInt(getUtils().getProperty("export.runEveryIteration"));
+    int exportIter = 0;
+    Notes2Cloud app = new Notes2Cloud();
+    while (true) {
+      try {
+        boolean export = exportIter == 0 || exportIter > exportEvery;
+        app.go(export);
+        if (export) {
+          exportIter = 1;
+        } else {
+          exportIter++;
+        }
+      } catch (Exception e) {
+        LOG.error("Error running sync", e);
+        Calendar now = Calendar.getInstance();
+        if (errorDir != null && errorDir.length() > 2
+          && now.get(Calendar.HOUR_OF_DAY) > 8 && now.get(Calendar.HOUR_OF_DAY) < 18) {
+          File ed = new File(errorDir);
+          if (ed.exists() && ed.canWrite()) {
+            File ef = new File(ed, "Notes2Cloud-" + String.valueOf(System.currentTimeMillis()) + ".txt");
+            try {
+              PrintWriter pw = new PrintWriter(ef);
+              e.printStackTrace(pw);
+              pw.close();
+            } catch (Exception x) {
+              // do nothing
+            }
+          }
+        }
+      }
+      long mins = Long.parseLong(getUtils().getProperty("runEveryMinutes"));
+      LOG.info("Waiting " + mins + " mins");
+      try {
+        Thread.sleep(mins * 60L * 1000L);
+      } catch (InterruptedException e) {
+        LOG.error("Interrupt on sleep, will end", e);
+        break;
+      }
+    }
   }
 
   public void go(boolean export) {
@@ -85,62 +177,5 @@ public class Notes2Cloud {
 
     // shutdown httpclient
     getUtils().close();
-  }
-
-  public static void macSetup() {
-    // set some mac-specific properties
-    System.setProperty("apple.awt.graphics.EnableQ2DX", "true");
-    System.setProperty("apple.laf.useScreenMenuBar", "true");
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Notes2Cloud");
-
-    // create an instance of the Mac Application class, so i can handle the
-    // mac quit event with the Mac ApplicationAdapter
-    Application macApplication = Application.getApplication();
-    macApplication.addApplicationListener(new MacApp());
-    macApplication.setEnabledPreferencesMenu(false);
-    macApplication.setEnabledAboutMenu(false);
-  }
-
-  public static void main(String[] args) {
-    LOG.info("Started");
-    macSetup();
-    String errorDir = getUtils().getProperty("errorDir");
-    int exportEvery = Integer.parseInt(getUtils().getProperty("export.runEveryIteration"));
-    int exportIter = 0;
-    Notes2Cloud app = new Notes2Cloud();
-    while (true) {
-      try {
-        boolean export = exportIter == 0 || exportIter > exportEvery;
-        app.go(export);
-        if (export) {
-          exportIter = 1;
-        } else {
-          exportIter++;
-        }
-      } catch (Exception e) {
-        LOG.error("Error running sync", e);
-        if (errorDir != null && errorDir.length() > 2) {
-          File ed = new File(errorDir);
-          if (ed.exists() && ed.canWrite()) {
-            File ef = new File(ed, "Notes2Cloud-" + String.valueOf(System.currentTimeMillis()) + ".txt");
-            try {
-              PrintWriter pw = new PrintWriter(ef);
-              e.printStackTrace(pw);
-              pw.close();
-            } catch (Exception x) {
-              // do nothing
-            }
-          }
-        }
-      }
-      long mins = Long.parseLong(getUtils().getProperty("runEveryMinutes"));
-      LOG.info("Waiting " + mins + " mins");
-      try {
-        Thread.sleep(mins * 60L * 1000L);
-      } catch (InterruptedException e) {
-        LOG.error("Interrupt on sleep, will end", e);
-        break;
-      }
-    }
   }
 }

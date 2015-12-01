@@ -27,18 +27,18 @@
 		<key>MainClass</key>
 		<string>com.renaghan.notes2cloud.Notes2Cloud</string>
 		<key>JVMVersion</key>
-		<string>1.6+</string>
+		<string>1.7+</string>
 		<key>ClassPath</key>
 			<array>
 			<string>$USER_HOME/Dev/notes2cloud/conf</string>
 			<string>$USER_HOME/Dev/notes2cloud/bin/classes</string>
 			<string>$USER_HOME/Dev/notes2cloud/lib/log4j-1.2.12.jar</string>
-			<string>$USER_HOME/Dev/notes2cloud/lib/commons-codec-1.4.jar</string>
-			<string>$USER_HOME/Dev/notes2cloud/lib/commons-logging-1.1.1.jar</string>
-			<string>$USER_HOME/Dev/notes2cloud/lib/httpclient-4.1.2.jar</string>
-			<string>$USER_HOME/Dev/notes2cloud/lib/httpclient-cache-4.1.2.jar</string>
-			<string>$USER_HOME/Dev/notes2cloud/lib/httpcore-4.1.2.jar</string>
-			<string>$USER_HOME/Dev/notes2cloud/lib/httpmime-4.1.2.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/commons-codec-1.9.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/commons-logging-1.2.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpclient-4.4.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpclient-cache-4.4.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpcore-4.4.jar</string>
+			<string>$USER_HOME/Dev/notes2cloud/lib/httpmime-4.4.jar</string>
 			</array>
 	</dict>
 </dict>

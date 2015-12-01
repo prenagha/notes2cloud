@@ -72,6 +72,7 @@ public class NotesCalendarDownload {
     String subjectFieldName = utils.getProperty("notes.subjectFieldName");
     String excludeWithPrefix = utils.getProperty("excludeWithPrefix");
     String excludeContains = utils.getProperty("excludeContains");
+    String excludeContains2 = utils.getProperty("excludeContains2");
 
     String current = "";
     try {
@@ -128,6 +129,7 @@ public class NotesCalendarDownload {
           && when != null
           && !name.startsWith(excludeWithPrefix)
           && !name.contains(excludeContains)
+          && !name.contains(excludeContains2)
           && !when.after(maxDate)
           && !when.before(minDate)) {
           events.add(new Event(uniqueId, name, location, start, end, day, owner));

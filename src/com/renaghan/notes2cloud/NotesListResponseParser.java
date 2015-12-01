@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
 
 /**
  * parse notes mail export list response
@@ -20,8 +23,6 @@ import java.util.*;
  */
 public class NotesListResponseParser {
   private static final Logger LOG = Logger.getLogger(NotesListResponseParser.class);
-
-  private static Set<String> types = new HashSet<String>();
 
   public NotesListResponseParser() {
   }
@@ -84,55 +85,54 @@ public class NotesListResponseParser {
     String type = null;
     Calendar date = null;
     String subject = null;
-    while (reader.hasNext()) {
-      XMLEvent next = reader.nextEvent();
-      if (next.isStartElement()) {
-        StartElement start = next.asStartElement();
-        String startName = start.getName().getLocalPart();
-        if ("entrydata".equals(startName)) {
-          String name = start.getAttributeByName(QName.valueOf("name")).getValue();
-          if ("$86".equals(name)) { // type
-            type = readSingleSubElementValue(reader, start);
-            if (type == null)
-              throw new RuntimeException("Type is empty");
-          } else if ("$68".equals(name)) { // date
-            String dateStr = readSingleSubElementValue(reader, start);
-            if (dateStr == null)
-              throw new RuntimeException("Date is null");
-            date = convertTimeFormat(dateStr);
-          } else if ("$74".equals(name)) { // subject
-            subject = readSingleSubElementValue(reader, start);
+    String name = null;
+    try {
+      while (reader.hasNext()) {
+        XMLEvent next = reader.nextEvent();
+        if (next.isStartElement()) {
+          StartElement start = next.asStartElement();
+          String startName = start.getName().getLocalPart();
+          if ("entrydata".equals(startName)) {
+            name = start.getAttributeByName(QName.valueOf("name")).getValue();
+            if (type == null && ("$86".equals(name) || "$149".equals(name))) { // type
+              type = readSingleSubElementValue(reader, start);
+              if (type == null)
+                throw new RuntimeException("Type is empty");
+            } else if (date == null && ("$68".equals(name) || "$134".equals(name) || "$144".equals(name))) { // date
+              String dateStr = readSingleSubElementValue(reader, start);
+              if (dateStr == null)
+                throw new RuntimeException("Date is null");
+              date = convertTimeFormat(dateStr);
+            } else if (subject == null && ("$74".equals(name) || "$147".equals(name))) { // subject
+              subject = readSingleSubElementValue(reader, start);
+            }
+          }
+        } else if (next.isEndElement()) {
+          if ("viewentry".equals(next.asEndElement().getName().getLocalPart())) {
+            return new NotesMailMeta(id, type, date, subject);
           }
         }
-      } else if (next.isEndElement()) {
-        if (type != null && date != null) {
-          return new NotesMailMeta(id, type, date, subject);
-        }
-        if ("viewentry".equals(next.asEndElement().getName().getLocalPart())) {
-          throw new RuntimeException("Unable to parse item " + id);
-        }
       }
+    } catch (Exception e) {
+      throw new RuntimeException("Error parsing " + id + " " + name, e);
     }
     throw new RuntimeException("Can't load view entry " + id);
   }
 
   protected String readSingleSubElementValue(XMLEventReader reader, StartElement start) throws XMLStreamException {
     String value = null;
-    boolean inValueElement = false;
     while (reader.hasNext()) {
       XMLEvent next = reader.nextEvent();
-      if (next.isStartElement()) {
-        inValueElement = true;
-      } else if (next.isCharacters() && inValueElement) {
+      if (value == null && next.isCharacters()) {
         value = next.asCharacters().getData();
-      } else if (next.isEndElement()) {
-        inValueElement = false;
-        if (start.getName().getLocalPart().equals(next.asEndElement().getName().getLocalPart())) {
-          return value == null ? null : value.trim();
-        }
+        value = value == null ? value : value.trim();
+        value = value == null || value.isEmpty() ? null : value;
+      } else if (next.isEndElement() &&
+        start.getName().getLocalPart().equals(next.asEndElement().getName().getLocalPart())) {
+        break;
       }
     }
-    return value == null ? null : value.trim();
+    return value;
   }
 
   private Calendar convertTimeFormat(String dateStr) throws ParseException {
@@ -140,6 +140,21 @@ public class NotesListResponseParser {
 
     if (dateStr == null)
       return null;
+
+    if (dateStr.length() == 8) {
+      year = dateStr.substring(0, 4);
+      month = dateStr.substring(4, 6);
+      day = dateStr.substring(6, 8);
+      hour = "00";
+      minute = "00";
+      second = "00";
+      String str = year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      Date sd = sdf.parse(str);
+      Calendar c = Calendar.getInstance();
+      c.setTime(sd);
+      return c;
+    }
 
     if (dateStr.length() < 18)
       throw new IllegalArgumentException("Notes time too short " + dateStr);
@@ -160,7 +175,7 @@ public class NotesListResponseParser {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
     Date sd = sdf.parse(str);
-    Calendar c  = Calendar.getInstance();
+    Calendar c = Calendar.getInstance();
     c.setTime(sd);
     return c;
   }
